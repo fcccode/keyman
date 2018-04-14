@@ -2,6 +2,7 @@
 
 ## 11.0 alpha
 * Move to 11.0
+* Update compile and target Android SDK version to 27
 
 ## 2018-03-22 10.0.373 beta
 * Initial beta release of Keyman for Android 10.0
