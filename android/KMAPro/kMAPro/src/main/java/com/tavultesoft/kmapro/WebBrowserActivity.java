@@ -23,6 +23,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Patterns;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
@@ -54,10 +55,11 @@ public class WebBrowserActivity extends Activity {
   private boolean isLoading = false;
   private boolean didFinishLoading = false;
 
-  @SuppressLint({"SetJavaScriptEnabled", "InflateParams"})
+  @SuppressLint("SetJavaScriptEnabled")
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_web_browser);
 
     final Context context = this;
     final ActionBar actionBar = getActionBar();
@@ -66,11 +68,10 @@ public class WebBrowserActivity extends Activity {
     actionBar.setDisplayShowTitleEnabled(false);
     actionBar.setDisplayShowCustomEnabled(true);
     actionBar.setBackgroundDrawable(MainActivity.getActionBarDrawable(this));
-    final ViewGroup webBarLayout = (ViewGroup) getLayoutInflater().inflate(
-      R.layout.web_browser_bar_layout,
-      null);
-    actionBar.setCustomView(webBarLayout);
-    setContentView(R.layout.activity_web_browser);
+
+    actionBar.setCustomView(R.layout.web_browser_bar_layout);
+    ViewGroup webBarLayout = (ViewGroup) actionBar.getCustomView().findViewById(
+      R.id.browser_bar);
 
     webView = (WebView) findViewById(R.id.webView);
     addressField = (EditText) findViewById(R.id.address_field);
@@ -337,6 +338,7 @@ public class WebBrowserActivity extends Activity {
     super.onResume();
     if (webView != null) {
       webView.resumeTimers();
+      webView.onResume();
 
       if (didFinishLoading) {
         String fontFilename = KMManager.getKeyboardTextFontFilename();
@@ -352,11 +354,18 @@ public class WebBrowserActivity extends Activity {
     super.onPause();
     if (webView != null) {
       webView.pauseTimers();
+      webView.onPause();
     }
   }
 
   @Override
   protected void onDestroy() {
+    if (webView != null) {
+      ViewGroup viewGroup = (ViewGroup) webView.getParent();
+      viewGroup.removeView(webView);
+      webView.destroy();
+      webView = null;
+    }
     super.onDestroy();
   }
 
